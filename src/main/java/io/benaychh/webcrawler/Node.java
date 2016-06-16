@@ -38,6 +38,14 @@ public class Node {
   }
 
   /**
+   * Gets the path of the node.
+   * @return 
+   */
+  public String getPath() {
+    return this.path;
+  }
+
+  /**
    * Search for a specific path (includes children in the search).
    * @param pPath the url to search for.
    * @return The node matching that path or null if not in this branch.
@@ -60,11 +68,25 @@ public class Node {
    * Adds a child to our array of children nodes.
    * @param pPath the url our child node represents.
    */
-  public final void addChild(final String pPath) {
+  public final Node addChild(final String pPath) {
     Node tempOrigin = this.origin;
     if (tempOrigin == null) {
       tempOrigin = this;
     }
-    children.add(new Node(pPath, tempOrigin));
+    Node tempNode = new Node(pPath, tempOrigin);
+    children.add(tempNode);
+    return tempNode;
+  }
+
+  @Override
+  public final String toString() {
+    return this.path;
+  }
+
+  public void printTree() {
+    System.out.println(this.toString());
+    for (Node child : children) {
+      child.printTree();
+    }
   }
 }
