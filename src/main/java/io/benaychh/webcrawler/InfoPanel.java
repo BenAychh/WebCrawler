@@ -81,9 +81,6 @@ public class InfoPanel extends JPanel {
     Border paddingBorder = BorderFactory.createEmptyBorder(
         padding, padding, padding, padding);
     JTextFieldPrompt input = new JTextFieldPrompt("http://example.com");
-    input.addActionListener(l -> {
-      
-    });
     input.setPreferredSize(new Dimension(300, 50));
     input.setBorder(paddingBorder);
     JButton button = new JButton("Crawl!");
@@ -161,7 +158,8 @@ public class InfoPanel extends JPanel {
    */
   public final void appendInfo(final String pMessage) {
     synchronized (infoLocker) {
-      information.setText(information.getText() + "\n" + pMessage);
+      information.setText(new StringBuilder(information.getText())
+          .append("\n" + pMessage).toString());
     }
   }
 
@@ -171,10 +169,14 @@ public class InfoPanel extends JPanel {
    */
   public final void appendLog(final String pMessage) {
     synchronized (loggingLocker) {
-      logging.setText(logging.getText() + "\n" + pMessage);
+      logging.setText(new StringBuilder(logging.getText())
+          .append("\n" + pMessage).toString());
     }
   }
 
+  /**
+   * Clears the logging panel so we can start over.
+   */
   public final void clearLog() {
     synchronized (loggingLocker) {
       logging.setText("");
