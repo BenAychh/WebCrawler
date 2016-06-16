@@ -6,6 +6,8 @@
 package io.benaychh.webcrawler;
 
 import java.io.PrintWriter;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
@@ -61,9 +63,14 @@ public class CrawlingWorker extends SwingWorker<Void, Void> {
             .log(Level.SEVERE, null, ex);
       }
       this.ip.setStatus("Printing Tree", InfoPanel.Levels.warn);
-      PrintWriter pw = new PrintWriter("tree", "UTF-8");
+      PrintWriter pw = new PrintWriter("tree.txt", "UTF-8");
       on.printTree(0, pw);
       this.ip.setStatus("Printing Finished", InfoPanel.Levels.ok);
+      this.ip.appendLog("File located at: ");
+      Path currentRelativePath = Paths.get("");
+      String s = currentRelativePath.toAbsolutePath().toString();
+      this.ip.appendLog(s + "/tree.txt");
+      pw.close();
     } else {
       this.ip.setStatus("Bad URL Format", InfoPanel.Levels.error);
     }
