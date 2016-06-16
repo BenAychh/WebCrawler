@@ -5,8 +5,6 @@
  */
 package io.benaychh.webcrawler;
 
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 import javax.swing.JFrame;
 
 /**

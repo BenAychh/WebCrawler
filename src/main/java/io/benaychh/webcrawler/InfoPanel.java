@@ -6,18 +6,12 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.GridLayout;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
-import javax.swing.JTextField;
-import javax.swing.SwingWorker;
 import javax.swing.border.Border;
 
 /**
@@ -86,7 +80,10 @@ public class InfoPanel extends JPanel {
     JPanel leftTopPanel = new JPanel();
     Border paddingBorder = BorderFactory.createEmptyBorder(
         padding, padding, padding, padding);
-    JTextField input = new JTextField();
+    JTextFieldPrompt input = new JTextFieldPrompt("http://example.com");
+    input.addActionListener(l -> {
+      
+    });
     input.setPreferredSize(new Dimension(300, 50));
     input.setBorder(paddingBorder);
     JButton button = new JButton("Crawl!");

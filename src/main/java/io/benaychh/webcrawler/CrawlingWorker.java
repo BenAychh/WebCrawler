@@ -35,29 +35,35 @@ public class CrawlingWorker extends SwingWorker<Void, Void> {
   @Override
   protected Void doInBackground() throws Exception {
     this.ip.clearLog();
-    OriginNode on = new OriginNode(this.url, this.ip);
-    ThreadPoolExecutor tpe = on.getThreadPool();
-    final int sleepTime = 5000;
-    while (tpe.getTaskCount() != tpe.getCompletedTaskCount()) {
+    // URL validation taken from http://www.santhoshreddymandadi.com/java/best-url-and-email-validation-using.html
+    String urlPattern = "^http(s{0,1})://[a-zA-Z0-9_/\\-\\.]+\\.([A-Za-z/]{2,5})[a-zA-Z0-9_/\\&\\?\\=\\-\\.\\~\\%]*";
+    if (url.matches(urlPattern)) {
+      OriginNode on = new OriginNode(this.url, this.ip);
+      ThreadPoolExecutor tpe = on.getThreadPool();
+      final int sleepTime = 5000;
+      while (tpe.getTaskCount() != tpe.getCompletedTaskCount()) {
+        try {
+          this.ip.setStatus("Ensuring complete", InfoPanel.Levels.ok);
+          Thread.sleep(sleepTime);
+        } catch (InterruptedException ex) {
+          Logger.getLogger(InfoPanel.class.getName())
+              .log(Level.SEVERE, null, ex);
+        }
+      }
+      tpe.shutdown();
+      final int timeToFinish = 3600;
       try {
-        this.ip.setStatus("Ensuring complete", InfoPanel.Levels.ok);
-        Thread.sleep(sleepTime);
+        this.ip.setStatus("Finalizing", InfoPanel.Levels.ok);
+        tpe.awaitTermination(timeToFinish, TimeUnit.MILLISECONDS);
       } catch (InterruptedException ex) {
         Logger.getLogger(InfoPanel.class.getName())
             .log(Level.SEVERE, null, ex);
       }
+      this.ip.setStatus("Printing Tree", InfoPanel.Levels.ok);
+      on.printTree(0, this.ip);
+    } else {
+      this.ip.setStatus("Bad URL Format", InfoPanel.Levels.error);
     }
-    tpe.shutdown();
-    final int timeToFinish = 3600;
-    try {
-      this.ip.setStatus("Finalizing", InfoPanel.Levels.ok);
-      tpe.awaitTermination(timeToFinish, TimeUnit.MILLISECONDS);
-    } catch (InterruptedException ex) {
-      Logger.getLogger(InfoPanel.class.getName())
-          .log(Level.SEVERE, null, ex);
-    }
-    this.ip.setStatus("Printing Tree", InfoPanel.Levels.ok);
-    on.printTree(0, this.ip);
     return null;
   }
 }
