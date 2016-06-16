@@ -14,7 +14,6 @@ import java.util.concurrent.TimeUnit;
  * @author benhernandez
  */
 public class OriginNode extends Node {
-  private boolean firstScan = true;
   /**
    * The pool of threads for TempNode processing.
    */
@@ -30,8 +29,9 @@ public class OriginNode extends Node {
   /**
    * Simple constructor.
    * @param pPath the path of the origin.
+   * @param pInfoPanel the panel where we put the information.
    */
-  public OriginNode(final String pPath, InfoPanel pInfoPanel) {
+  public OriginNode(final String pPath, final InfoPanel pInfoPanel) {
     super(pPath, null);
     this.ip = pInfoPanel;
     tpe = new ThreadPoolExecutor(10, 20, 2000, TimeUnit.MILLISECONDS,
@@ -46,17 +46,20 @@ public class OriginNode extends Node {
   public final synchronized void addToQueue(TempNode tempNode) {
     Node searchResults = search(tempNode.getPath());
     if (searchResults == null) {
-//      ip.appendInfoAndLimitLines("New Node: " + tempNode.getPath());
       tpe.execute(tempNode);
     } else {
       try {
         tempNode.getParent().addChild(tempNode.getPath());
       } catch (Exception e) {
-        this.ip.appendInfoAndLimitLines("Invalid Parent");
+        System.out.println("Bad Parent");
       }
     }
   }
-  
+
+  /**
+   * Gets the threadpool so we can see when it is over.
+   * @return the threadpool we are working with.
+   */
   public final ThreadPoolExecutor getThreadPool() {
     return this.tpe;
   }
