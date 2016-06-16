@@ -5,6 +5,7 @@
  */
 package io.benaychh.webcrawler;
 
+import java.io.PrintWriter;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
@@ -44,7 +45,6 @@ public class CrawlingWorker extends SwingWorker<Void, Void> {
       final int sleepTime = 5000;
       while (tpe.getTaskCount() != tpe.getCompletedTaskCount()) {
         try {
-          this.ip.setStatus("Ensuring complete", InfoPanel.Levels.ok);
           Thread.sleep(sleepTime);
         } catch (InterruptedException ex) {
           Logger.getLogger(InfoPanel.class.getName())
@@ -52,16 +52,18 @@ public class CrawlingWorker extends SwingWorker<Void, Void> {
         }
       }
       tpe.shutdown();
-      final int timeToFinish = 3600;
+      final int timeToFinish = 60;
       try {
         this.ip.setStatus("Finalizing", InfoPanel.Levels.ok);
-        tpe.awaitTermination(timeToFinish, TimeUnit.MILLISECONDS);
+        tpe.awaitTermination(timeToFinish, TimeUnit.SECONDS);
       } catch (InterruptedException ex) {
         Logger.getLogger(InfoPanel.class.getName())
             .log(Level.SEVERE, null, ex);
       }
-      this.ip.setStatus("Printing Tree", InfoPanel.Levels.ok);
-      on.printTree(0, this.ip);
+      this.ip.setStatus("Printing Tree", InfoPanel.Levels.warn);
+      PrintWriter pw = new PrintWriter("tree", "UTF-8");
+      on.printTree(0, pw);
+      this.ip.setStatus("Printing Finished", InfoPanel.Levels.ok);
     } else {
       this.ip.setStatus("Bad URL Format", InfoPanel.Levels.error);
     }
