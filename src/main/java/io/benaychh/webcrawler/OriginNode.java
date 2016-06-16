@@ -5,9 +5,6 @@
  */
 package io.benaychh.webcrawler;
 
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -27,26 +24,32 @@ public class OriginNode extends Node {
    */
   private final int queueSize = 5;
   /**
+   * The info panel.
+   */
+  private final InfoPanel ip;
+  /**
    * Simple constructor.
    * @param pPath the path of the origin.
    */
-  public OriginNode(final String pPath) {
+  public OriginNode(final String pPath, InfoPanel pInfoPanel) {
     super(pPath, null);
-    tpe = new ThreadPoolExecutor(3, 3, 2000, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<>());
-    tpe.execute(new TempNode(this, this, pPath));
+    this.ip = pInfoPanel;
+    tpe = new ThreadPoolExecutor(3, 3, 2000, TimeUnit.MILLISECONDS,
+        new LinkedBlockingQueue<>());
+    tpe.execute(new TempNode(this, this, pPath, this.ip));
   }
 
   /**
    * Adds a TempNode to our queue.
    * @param tempNode the tempNode to add.
    */
-  public synchronized void addToQueue(TempNode tempNode) {
+  public final synchronized void addToQueue(TempNode tempNode) {
     Node searchResults = search(tempNode.getPath());
-    if (searchResults == null ) {
-      System.out.println("New Node: " + tempNode.getPath());
+    if (searchResults == null) {
+      ip.appendInfoAndLimitLines("New Node: " + tempNode.getPath());
       tpe.execute(tempNode);
     } else {
-      System.out.println("Already Exists: " + tempNode.getPath());
+      ip.appendInfoAndLimitLines("Already Exists: " + tempNode.getPath());
       tempNode.getParent().addChild(tempNode.getPath());
     }
   }

@@ -5,9 +5,9 @@
  */
 package io.benaychh.webcrawler;
 
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import javax.swing.JFrame;
 
 /**
  *
@@ -17,15 +17,14 @@ public class WebCrawlerMain {
 
   /**
    * @param args the command line arguments
+   * @throws java.lang.InterruptedException if executor gets interuppted.
    */
   public static void main(final String[] args) throws InterruptedException {
-    OriginNode on = new OriginNode("http://localhost:8080/");
-    ThreadPoolExecutor tpe = on.getThreadPool();
-    while (tpe.getTaskCount() != tpe.getCompletedTaskCount()){
-      Thread.sleep(5000);
-    }
-    tpe.shutdown();
-    tpe.awaitTermination(60, TimeUnit.SECONDS);
-    on.printTree();
+    JFrame frame = new JFrame("Ben's Web Crawler");
+    InfoPanel infoPanel = new InfoPanel();
+    frame.setSize(800, 600);
+    frame.add(infoPanel);
+    frame.setVisible(true);
+    frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
   }
 }

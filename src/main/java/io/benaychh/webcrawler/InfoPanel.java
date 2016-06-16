@@ -2,14 +2,22 @@ package io.benaychh.webcrawler;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.GridLayout;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.BorderFactory;
+import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+import javax.swing.JTextField;
+import javax.swing.SwingWorker;
 import javax.swing.border.Border;
 
 /**
@@ -72,16 +80,33 @@ public class InfoPanel extends JPanel {
     logging = new JTextArea();
     JScrollPane scrollLogging = new JScrollPane(logging);
     loggingLocker = new Object();
-    status = new JLabel();
-    status.setFont(new Font("Calibri", Font.BOLD, fontSize));
+
+    JPanel topAreaPanel = new JPanel();
+    topAreaPanel.setLayout(new GridLayout(0, 2));
+    JPanel leftTopPanel = new JPanel();
     Border paddingBorder = BorderFactory.createEmptyBorder(
         padding, padding, padding, padding);
+    JTextField input = new JTextField();
+    input.setPreferredSize(new Dimension(300, 50));
+    input.setBorder(paddingBorder);
+    JButton button = new JButton("Crawl!");
+    button.addActionListener(l -> {
+      this.setStatus("Starting Crawl", Levels.ok);
+      CrawlingWorker cw = new CrawlingWorker(this, input.getText());
+      cw.execute();
+    });
+    leftTopPanel.add(input);
+    leftTopPanel.add(button);
+    topAreaPanel.add(leftTopPanel);
+    status = new JLabel();
+    status.setFont(new Font("Calibri", Font.BOLD, fontSize));
     status.setBorder(paddingBorder);
     status.setBackground(Color.BLACK);
     status.setOpaque(true);
+    topAreaPanel.add(status);
     statusLocker = new Object();
     setLayout(new BorderLayout());
-    add(status, BorderLayout.PAGE_START);
+    add(topAreaPanel, BorderLayout.PAGE_START);
     textAreaPanel.add(scrollInfo);
     textAreaPanel.add(scrollLogging);
     add(textAreaPanel, BorderLayout.CENTER);
@@ -142,14 +167,20 @@ public class InfoPanel extends JPanel {
       information.setText(information.getText() + "\n" + pMessage);
     }
   }
-  
-    /**
+
+  /**
    * Appends a message to the information pane.
    * @param pMessage the message to append.
    */
   public final void appendLog(final String pMessage) {
     synchronized (loggingLocker) {
       logging.setText(logging.getText() + "\n" + pMessage);
+    }
+  }
+
+  public final void clearLog() {
+    synchronized (loggingLocker) {
+      logging.setText("");
     }
   }
 

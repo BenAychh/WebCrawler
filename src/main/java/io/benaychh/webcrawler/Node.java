@@ -93,7 +93,7 @@ public class Node {
     return this.path;
   }
 
-  public void printTree(int spacing) {
+  public void printTree(int spacing, InfoPanel ip) {
     String spacer = "";
     for (int i = 0; i < spacing; i++) {
       if (i % 4 == 0) {
@@ -107,9 +107,11 @@ public class Node {
     for (int i = 0; i < 3; i++) {
       spacer += "─";
     }
-    System.out.println(spacer + this.toString());
-    for (Node child : children) {
-      child.printTree(spacing + 4);
+    if (!this.path.isEmpty()) {
+      ip.appendLog(spacer + this.toString());
+      for (Node child : children) {
+        child.printTree(spacing + 4, ip);
+      }
     }
   }
 }
