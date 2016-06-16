@@ -17,6 +17,10 @@ public class Node {
    */
   private ArrayList<Node> children;
   /**
+   * The child locker.
+   */
+  private final Object childrenLocker;
+  /**
    * The Origin node (great great... grandparent node).
    */
   private final Node origin;
@@ -33,13 +37,14 @@ public class Node {
    */
   public Node(final String pPath, final Node pOrigin) {
     children = new ArrayList<>();
+    childrenLocker = new Object();
     this.path = pPath;
     this.origin = pOrigin;
   }
 
   /**
    * Gets the path of the node.
-   * @return 
+   * @return the path of the node.
    */
   public String getPath() {
     return this.path;
@@ -54,10 +59,12 @@ public class Node {
     if (this.path.equals(pPath)) {
       return this;
     } else {
-      for (Node node : children) {
-        Node temp = node.search(pPath);
-        if (temp != null) {
-          return temp;
+      synchronized (childrenLocker) {
+        for (Node node : children) {
+          Node temp = node.search(pPath);
+          if (temp != null) {
+            return temp;
+          }
         }
       }
       return null;
@@ -67,6 +74,7 @@ public class Node {
   /**
    * Adds a child to our array of children nodes.
    * @param pPath the url our child node represents.
+   * @return the child node being added.
    */
   public final Node addChild(final String pPath) {
     Node tempOrigin = this.origin;
@@ -74,12 +82,10 @@ public class Node {
       tempOrigin = this;
     }
     Node tempNode = new Node(pPath, tempOrigin);
-    children.add(tempNode);
+    synchronized (childrenLocker) {
+      children.add(tempNode);
+    }
     return tempNode;
-  }
-
-  public final void addChild(Node node) {
-    children.add(node);
   }
 
   @Override
@@ -87,10 +93,23 @@ public class Node {
     return this.path;
   }
 
-  public void printTree() {
-    System.out.println(this.toString());
+  public void printTree(int spacing) {
+    String spacer = "";
+    for (int i = 0; i < spacing; i++) {
+      if (i % 4 == 0) {
+        spacer += "│";
+      } else {
+        spacer += " ";
+      }
+      
+    }
+    spacer += "├";
+    for (int i = 0; i < 3; i++) {
+      spacer += "─";
+    }
+    System.out.println(spacer + this.toString());
     for (Node child : children) {
-      child.printTree();
+      child.printTree(spacing + 4);
     }
   }
 }
