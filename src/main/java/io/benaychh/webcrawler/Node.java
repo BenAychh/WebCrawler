@@ -60,6 +60,7 @@ public class Node {
     if (this.path.equals(pPath)) {
       return this;
     } else {
+      // We can't be searching the children while we are adding them.
       synchronized (childrenLocker) {
         for (Node node : children) {
           Node temp = node.search(pPath);
@@ -83,20 +84,20 @@ public class Node {
       tempOrigin = this;
     }
     synchronized (childrenLocker) {
+      Node tempNode = new Node(pPath, tempOrigin);
       boolean unique = true;
       for (Node node : children) {
         if (node.getPath().equals(pPath)) {
           unique = false;
+          tempNode = node;
           break;
         }
       }
       if (unique) {
-        Node tempNode = new Node(pPath, tempOrigin);
         children.add(tempNode);
-        return tempNode;
       }
+      return tempNode;
     }
-    return null;
   }
 
   @Override
@@ -104,24 +105,29 @@ public class Node {
     return this.path;
   }
 
-  public void printTree(int spacing, PrintWriter pw) {
+  /**
+   * Prints the tree of nodes.
+   * @param spacing the spacing (so we can move things incrementally in).
+   * @param pw the printwriter so we can write our text file.
+   */
+  public final void printTree(final int spacing, final PrintWriter pw) {
     String spacer = "";
+    final int spacingAmount = 4;
     for (int i = 0; i < spacing; i++) {
-      if (i % 4 == 0) {
+      if (i % spacingAmount == 0) {
         spacer += "│";
       } else {
         spacer += " ";
       }
-      
     }
     spacer += "├";
-    for (int i = 0; i < 3; i++) {
+    for (int i = 0; i < spacingAmount - 1; i++) {
       spacer += "─";
     }
     if (!this.path.isEmpty()) {
       pw.println(spacer + this.toString());
       for (Node child : children) {
-        child.printTree(spacing + 4, pw);
+        child.printTree(spacing + spacingAmount, pw);
       }
     }
   }
