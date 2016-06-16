@@ -77,7 +77,7 @@ public class TempNode implements Runnable {
                 link.attr("abs:href"), ip));
           });
         } catch (IOException ex) {
-          System.out.println("Non html response");
+          ip.appendInfoAndLimitLines("Non html response - " + this.path);
         }
       }
   }
