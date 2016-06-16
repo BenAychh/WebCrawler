@@ -9,7 +9,7 @@ package io.benaychh.webcrawler;
  *
  * @author benhernandez
  */
-public class TempNode {
+public class TempNode implements Runnable {
   /**
    * The parent node of this node.
    */
@@ -28,20 +28,15 @@ public class TempNode {
     this.parent = pParent;
     this.path = pPath;
   }
-
   /**
-   * Gets the parent node (so we can call addChild).
-   * @return the parent node.
+   * Gets the url represented by this node.
+   * @return the url of our node.
    */
-  public final Node getParent() {
-    return this.parent;
-  }
-
-  /**
-   * Gets the path this node represents.
-   * @return the path of this node.
-   */
-  public final String getPath() {
+  public String getPath() {
     return this.path;
+  }
+  @Override
+  public void run() {
+   
   }
 }
