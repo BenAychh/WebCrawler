@@ -56,11 +56,15 @@ public class Node {
     }
   }
 
-  public final void addChild(final String path) {
+  /**
+   * Adds a child to our array of children nodes.
+   * @param pPath the url our child node represents.
+   */
+  public final void addChild(final String pPath) {
     Node tempOrigin = this.origin;
     if (tempOrigin == null) {
       tempOrigin = this;
     }
-    children.add(new Node(path, tempOrigin));
+    children.add(new Node(pPath, tempOrigin));
   }
 }
