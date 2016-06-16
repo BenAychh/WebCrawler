@@ -5,6 +5,7 @@
  */
 package io.benaychh.webcrawler;
 
+import java.io.PrintWriter;
 import java.util.ArrayList;
 
 /**
@@ -46,7 +47,7 @@ public class Node {
    * Gets the path of the node.
    * @return the path of the node.
    */
-  public String getPath() {
+  public final String getPath() {
     return this.path;
   }
 
@@ -81,11 +82,21 @@ public class Node {
     if (tempOrigin == null) {
       tempOrigin = this;
     }
-    Node tempNode = new Node(pPath, tempOrigin);
     synchronized (childrenLocker) {
-      children.add(tempNode);
+      boolean unique = true;
+      for (Node node : children) {
+        if (node.getPath().equals(pPath)) {
+          unique = false;
+          break;
+        }
+      }
+      if (unique) {
+        Node tempNode = new Node(pPath, tempOrigin);
+        children.add(tempNode);
+        return tempNode;
+      }
     }
-    return tempNode;
+    return null;
   }
 
   @Override
@@ -93,7 +104,7 @@ public class Node {
     return this.path;
   }
 
-  public void printTree(int spacing, InfoPanel ip) {
+  public void printTree(int spacing, PrintWriter pw) {
     String spacer = "";
     for (int i = 0; i < spacing; i++) {
       if (i % 4 == 0) {
@@ -108,9 +119,9 @@ public class Node {
       spacer += "─";
     }
     if (!this.path.isEmpty()) {
-      ip.appendLog(spacer + this.toString());
+      pw.println(spacer + this.toString());
       for (Node child : children) {
-        child.printTree(spacing + 4, ip);
+        child.printTree(spacing + 4, pw);
       }
     }
   }
