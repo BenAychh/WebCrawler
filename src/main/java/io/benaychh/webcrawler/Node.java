@@ -50,7 +50,7 @@ public class Node {
    * @param pPath the url to search for.
    * @return The node matching that path or null if not in this branch.
    */
-  public final Node search(final String pPath) {
+  public final synchronized Node search(final String pPath) {
     if (this.path.equals(pPath)) {
       return this;
     } else {
@@ -76,6 +76,10 @@ public class Node {
     Node tempNode = new Node(pPath, tempOrigin);
     children.add(tempNode);
     return tempNode;
+  }
+
+  public final void addChild(Node node) {
+    children.add(node);
   }
 
   @Override

@@ -64,6 +64,7 @@ public class TempNode implements Runnable {
       // this path is in our website original url so we have to crawl it.
       // We do this buy adding it to our executor service.
       if (this.path.contains(origin.getPath())) {
+        System.out.println("Crawling: " + this.path);
         Document page = Jsoup.connect(this.path).get();
         Elements links = page.select("a[href]");
         links.stream().forEach((link) -> {
