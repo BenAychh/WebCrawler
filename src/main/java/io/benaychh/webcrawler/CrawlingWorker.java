@@ -26,14 +26,15 @@ public class CrawlingWorker extends SwingWorker<Void, Void> {
   private final String url;
   /**
    * Simple constructor.
-   * @param pIp 
+   * @param pIp the Info Panel to write results to.
+   * @param pUrl the url to fetch.
    */
   public CrawlingWorker(final InfoPanel pIp, final String pUrl) {
     this.ip = pIp;
     this.url = pUrl;
   }
   @Override
-  protected Void doInBackground() throws Exception {
+  protected final Void doInBackground() throws Exception {
     this.ip.clearLog();
     // URL validation taken from http://www.santhoshreddymandadi.com/java/best-url-and-email-validation-using.html
     String urlPattern = "^http(s{0,1})://[a-zA-Z0-9_/\\-\\.]+\\.([A-Za-z/]{2,5})[a-zA-Z0-9_/\\&\\?\\=\\-\\.\\~\\%]*";

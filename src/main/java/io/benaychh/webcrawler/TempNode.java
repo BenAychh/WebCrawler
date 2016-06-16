@@ -64,21 +64,21 @@ public class TempNode implements Runnable {
   }
   @Override
   public final void run() {
-    try {
       Node newNode = this.parent.addChild(path);
       // this path is in our website original url so we have to crawl it.
       // We do this buy adding it to our executor service.
       if (this.path.contains(origin.getPath())) {
         ip.appendInfoAndLimitLines("Crawling: " + this.path);
-        Document page = Jsoup.connect(this.path).get();
-        Elements links = page.select("a[href]");
-        links.stream().forEach((link) -> {
-          this.origin.addToQueue(new TempNode(origin, newNode,
-              link.attr("abs:href"), ip));
-        });
+        try {
+          Document page = Jsoup.connect(this.path).get();
+          Elements links = page.select("a[href]");
+          links.stream().forEach((link) -> {
+            this.origin.addToQueue(new TempNode(origin, newNode,
+                link.attr("abs:href"), ip));
+          });
+        } catch (IOException ex) {
+          System.out.println("Non html response");
+        }
       }
-    } catch (Exception ex) {
-      Logger.getLogger(TempNode.class.getName()).log(Level.SEVERE, null, ex);
-    }
   }
 }
