@@ -34,7 +34,7 @@ public class OriginNode extends Node {
   public OriginNode(final String pPath, InfoPanel pInfoPanel) {
     super(pPath, null);
     this.ip = pInfoPanel;
-    tpe = new ThreadPoolExecutor(3, 3, 2000, TimeUnit.MILLISECONDS,
+    tpe = new ThreadPoolExecutor(10, 20, 2000, TimeUnit.MILLISECONDS,
         new LinkedBlockingQueue<>());
     tpe.execute(new TempNode(this, this, pPath, this.ip));
   }
@@ -46,11 +46,14 @@ public class OriginNode extends Node {
   public final synchronized void addToQueue(TempNode tempNode) {
     Node searchResults = search(tempNode.getPath());
     if (searchResults == null) {
-      ip.appendInfoAndLimitLines("New Node: " + tempNode.getPath());
+//      ip.appendInfoAndLimitLines("New Node: " + tempNode.getPath());
       tpe.execute(tempNode);
     } else {
-      ip.appendInfoAndLimitLines("Already Exists: " + tempNode.getPath());
-      tempNode.getParent().addChild(tempNode.getPath());
+      try {
+        tempNode.getParent().addChild(tempNode.getPath());
+      } catch (Exception e) {
+        this.ip.appendInfoAndLimitLines("Invalid Parent");
+      }
     }
   }
   
