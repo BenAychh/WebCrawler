@@ -6,8 +6,6 @@
 package io.benaychh.webcrawler;
 
 import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
@@ -26,6 +24,10 @@ public class TempNode implements Runnable {
    */
   private final Node parent;
   /**
+   * The self node.
+   */
+  private Node self;
+  /**
    * The path we need to check.
    */
   private final String path;
@@ -42,10 +44,11 @@ public class TempNode implements Runnable {
    * @param pInfoPanel the panel to log everything.
    */
   public TempNode(final OriginNode pOrigin, final Node pParent,
-      final String pPath, InfoPanel pInfoPanel) {
+      final String pPath, final InfoPanel pInfoPanel) {
     this.origin = pOrigin;
     this.parent = pParent;
     this.path = pPath;
+    this.self = null;
     this.ip = pInfoPanel;
   }
   /**
@@ -62,9 +65,12 @@ public class TempNode implements Runnable {
   public final Node getParent() {
     return this.parent;
   }
+  
+  public final void setNode(final Node pSelf) {
+    this.self = pSelf;
+  }
   @Override
   public final void run() {
-      Node newNode = this.parent.addChild(path);
       // this path is in our website original url so we have to crawl it.
       // We do this buy adding it to our executor service.
       if (this.path.contains(origin.getPath())) {
@@ -73,16 +79,23 @@ public class TempNode implements Runnable {
           Elements links = page.select("a[href]");
           links.stream().forEach((link) -> {
             String stringLink = link.attr("abs:href");
-            int lastPoundSign = stringLink.indexOf("#");
-            if (lastPoundSign == -1) {
-              ip.appendInfoAndLimitLines("Crawling: " + this.path);
-              this.origin.addToQueue(new TempNode(origin, newNode,
-                stringLink, ip));
-            } else {
-              ip.appendInfoAndLimitLines("Adding: " + this.path);
-              this.parent.addChild(stringLink);
+            try {
+              if (stringLink.charAt(stringLink.length() - 1) == '/') {
+                stringLink = stringLink.substring(0, stringLink.length() - 1);
+              }
+              if (!stringLink.equals(this.path)) {
+                int lastPoundSign = stringLink.indexOf("#");
+                if (lastPoundSign == -1) {
+                  ip.appendInfoAndLimitLines("Crawling: " + this.path);
+                  this.origin.addToQueue(new TempNode(origin, this.self,
+                    stringLink, ip));
+                } else {
+                  this.parent.addChild(stringLink);
+                }
+              }
+            } catch (Exception ex) {
+              System.err.println(stringLink);
             }
-            
           });
         } catch (IOException ex) {
           ip.appendInfoAndLimitLines("Content Type is not HTML - " + this.path);

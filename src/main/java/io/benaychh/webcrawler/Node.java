@@ -60,7 +60,7 @@ public class Node {
     if (this.path.equals(pPath)) {
       return this;
     } else {
-      // We can't be searching the children while we are adding them.
+      // We can't be searching the children while another thread is adding.
       synchronized (childrenLocker) {
         for (Node node : children) {
           Node temp = node.search(pPath);
@@ -68,8 +68,8 @@ public class Node {
             return temp;
           }
         }
+        return null;
       }
-      return null;
     }
   }
 
