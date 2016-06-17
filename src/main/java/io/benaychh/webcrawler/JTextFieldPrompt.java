@@ -33,6 +33,7 @@ public class JTextFieldPrompt extends JTextField {
       Graphics2D g2d = (Graphics2D) g;
       g2d.setColor(Color.GRAY);
       g2d.setFont(getFont());
+      // Padding 10 px.
       int x = 10;
       int y = 30;
       g2d.drawString(this.placeholderText, x, y);
