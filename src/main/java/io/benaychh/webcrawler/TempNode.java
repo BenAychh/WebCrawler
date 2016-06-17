@@ -6,6 +6,9 @@
 package io.benaychh.webcrawler;
 
 import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import org.jsoup.HttpStatusException;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
@@ -75,7 +78,8 @@ public class TempNode implements Runnable {
       // We do this buy adding it to our executor service.
       if (this.path.contains(origin.getPath())) {
         try {
-          Document page = Jsoup.connect(this.path).get();
+          Document page = Jsoup.connect(this.path).ignoreContentType(true)
+              .get();
           Elements links = page.select("a[href]");
           links.stream().forEach((link) -> {
             String stringLink = link.attr("abs:href");
@@ -97,8 +101,18 @@ public class TempNode implements Runnable {
               System.err.println(stringLink);
             }
           });
+        } catch (HttpStatusException ex) {
+          // Repeat the request, 429 is too many requests
+          if (ex.getStatusCode() == 429) {
+            ip.appendInfoAndLimitLines("Too Many Requests, retrying - "
+               + this.path);
+            this.origin.addToQueue(this);
+          } else {
+            ip.appendInfoAndLimitLines("HTML Error Code - "
+                + ex.getStatusCode() + " - " + this.path);
+          }
         } catch (IOException ex) {
-          ip.appendInfoAndLimitLines("Content Type is not HTML - " + this.path);
+          ip.appendInfoAndLimitLines(ex.getMessage() + " - " + this.path);
         }
       }
   }
