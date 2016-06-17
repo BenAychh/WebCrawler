@@ -52,6 +52,7 @@ public class TempNode implements Runnable {
     this.self = null;
     this.ip = pInfoPanel;
   }
+
   /**
    * Gets the url represented by this node.
    * @return the url of our node.
@@ -59,6 +60,7 @@ public class TempNode implements Runnable {
   public final String getPath() {
     return this.path;
   }
+
   /**
    * Gets the parent node.
    * @return the parent node.
@@ -66,10 +68,15 @@ public class TempNode implements Runnable {
   public final Node getParent() {
     return this.parent;
   }
-  
+
+  /**
+   * Sets the self node.
+   * @param pSelf the node realization of this temp node.
+   */
   public final void setNode(final Node pSelf) {
     this.self = pSelf;
   }
+
   @Override
   public final void run() {
       // this path is in our website original url so we have to crawl it.
@@ -80,18 +87,24 @@ public class TempNode implements Runnable {
               .get();
           Elements links = page.select("a[href]");
           links.stream().forEach((link) -> {
+            // Gets the absolute url.
             String stringLink = link.attr("abs:href");
             try {
+              // Extra slashes make the benaychh.io different from benaychh.io/
               if (stringLink.charAt(stringLink.length() - 1) == '/') {
                 stringLink = stringLink.substring(0, stringLink.length() - 1);
               }
+              // Don't want to be recrawling the page we are on (pages can link
+              // back to themselves)
               if (!stringLink.equals(this.path)) {
+                // Don't need to crawl #anchor links.
                 int lastPoundSign = stringLink.indexOf("#");
                 if (lastPoundSign == -1) {
                   ip.appendInfoAndLimitLines("Crawling: " + this.path);
                   this.origin.addToQueue(new TempNode(origin, this.self,
                     stringLink, ip));
                 } else {
+                  // Add the #anchor links to the tree.
                   this.parent.addChild(stringLink);
                 }
               }
@@ -101,12 +114,16 @@ public class TempNode implements Runnable {
           });
         } catch (HttpStatusException ex) {
           // Repeat the request, 429 is too many requests
-          if (ex.getStatusCode() == 429) {
+          final int tooManyRequests = 429;
+          if (ex.getStatusCode() == tooManyRequests) {
             ip.appendInfoAndLimitLines("Too Many Requests, retrying - "
                + this.path);
+            // Otherwise our search will keep this from being reparsed.
             this.parent.removeChild(self);
+            // Readd this node to the queue to be processed again.
             this.origin.addToQueue(this);
           } else {
+            // Other error codes.
             ip.appendInfoAndLimitLines("HTML Error Code - "
                 + ex.getStatusCode() + " - " + this.path);
           }
