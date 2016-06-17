@@ -100,6 +100,16 @@ public class Node {
     }
   }
 
+  /**
+   * Removes a child (necessary since this moves so quickly we get 429 errors)
+   * @param child the node to be removed.
+   */
+  public final void removeChild(Node child) {
+    synchronized (childrenLocker) {
+      children.remove(child);
+    }
+  }
+
   @Override
   public final String toString() {
     return this.path;

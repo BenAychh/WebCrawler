@@ -6,8 +6,6 @@
 package io.benaychh.webcrawler;
 
 import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.jsoup.HttpStatusException;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -106,6 +104,7 @@ public class TempNode implements Runnable {
           if (ex.getStatusCode() == 429) {
             ip.appendInfoAndLimitLines("Too Many Requests, retrying - "
                + this.path);
+            this.parent.removeChild(self);
             this.origin.addToQueue(this);
           } else {
             ip.appendInfoAndLimitLines("HTML Error Code - "
