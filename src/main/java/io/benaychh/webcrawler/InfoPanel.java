@@ -44,11 +44,11 @@ public class InfoPanel extends JPanel {
    */
   private final Object statusLocker;
   /**
-   * The JLabel border
+   * The JLabel border.
    */
-  private Border border;
+  private final Border border;
   /**
-   * The status font size
+   * The status font size.
    */
   private final int fontSize = 20;
   /**
@@ -58,13 +58,14 @@ public class InfoPanel extends JPanel {
   /**
    * The status info types.
    */
-  public static enum Levels {
+  public enum Levels {
     ok, warn, error
   }
   /**
    * The constructor.
    */
   public InfoPanel() {
+    // Bottom logging
     border = BorderFactory.createLineBorder(Color.WHITE);
     JPanel textAreaPanel = new JPanel();
     textAreaPanel.setLayout(new GridLayout(0, 2));
@@ -75,6 +76,7 @@ public class InfoPanel extends JPanel {
     JScrollPane scrollLogging = new JScrollPane(logging);
     loggingLocker = new Object();
 
+    // Top area.
     JPanel topAreaPanel = new JPanel();
     topAreaPanel.setLayout(new GridLayout(0, 2));
     JPanel leftTopPanel = new JPanel();
@@ -105,10 +107,11 @@ public class InfoPanel extends JPanel {
     textAreaPanel.add(scrollLogging);
     add(textAreaPanel, BorderLayout.CENTER);
   }
+
   /**
    * Sets the status code at the top of the panel.
    * @param pMessage the message to set.
-   * @param pStatusCode What type of message.
+   * @param level the level of our status - determines color.
    */
   public final void setStatus(final String pMessage, final Levels level) {
     synchronized (statusLocker) {
@@ -121,6 +124,11 @@ public class InfoPanel extends JPanel {
           break;
         case error:
           status.setForeground(Color.RED);
+          break;
+        default:
+          // This should never happen, it's an enum, but defaults are still
+          // good.
+          status.setForeground(Color.BLACK);
           break;
       }
       status.setText(pMessage);
@@ -135,9 +143,12 @@ public class InfoPanel extends JPanel {
   public final void appendInfoAndLimitLines(final String pMessage) {
     synchronized (infoLocker) {
       FontMetrics fm = information.getFontMetrics(information.getFont());
+      // Gets an approximate line height, sometimes is a bit off.
       int lineCount =
           (int) Math.floor(information.getHeight() / fm.getHeight());
+      // Split on the lines and check how many lines we have.
       String[] currentText = information.getText().split("\n");
+      // Drop the first line and append the new line.
       if (currentText.length >= lineCount) {
         String newCurrentText = "";
         for (int i = 1; i < currentText.length; i++) {
@@ -146,6 +157,7 @@ public class InfoPanel extends JPanel {
         newCurrentText += pMessage;
         information.setText(newCurrentText);
       } else {
+        // No need to drop, just append.
         information.setText(String.join("\n", currentText)
           + "\n" + pMessage);
       }
