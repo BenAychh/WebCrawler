@@ -5,7 +5,6 @@
  */
 package io.benaychh.webcrawler;
 
-import java.util.ArrayList;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -15,10 +14,6 @@ import java.util.concurrent.TimeUnit;
  * @author benhernandez
  */
 public class OriginNode extends Node {
-  /**
-   * The list of crawled urls.
-   */
-  ArrayList<String> crawled;
   /**
    * The pool of threads for TempNode processing.
    */
@@ -39,7 +34,6 @@ public class OriginNode extends Node {
   public OriginNode(final String pPath, final InfoPanel pInfoPanel) {
     super(pPath, null);
     this.ip = pInfoPanel;
-    crawled = new ArrayList<>();
     tpe = new ThreadPoolExecutor(2, 5, 2000, TimeUnit.MILLISECONDS,
         new LinkedBlockingQueue<>());
     TempNode self = new TempNode(this, this, pPath, this.ip);
@@ -56,8 +50,7 @@ public class OriginNode extends Node {
     if (searchResults == null) {
       tempNode.setNode(tempNode.getParent().addChild(tempNode.getPath()));
       tpe.execute(tempNode);
-    } 
-    else {
+    } else {
       try {
         tempNode.getParent().addChild(tempNode.getPath());
       } catch (Exception e) {
